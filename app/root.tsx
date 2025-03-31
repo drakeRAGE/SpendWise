@@ -69,7 +69,6 @@ export default function App() {
                       SpendWise
                     </span>
                   </Link>
-                  // In your navigation links section
                   <div className="ml-10 flex items-baseline space-x-4">
                     <Link
                       to="/"
