@@ -1,54 +1,38 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface Transaction {
-  id: string;
-  type: 'income' | 'expense';
-  category: string;
-  amount: number;
+  _id: string;
   date: string;
   description: string;
-  paymentMethod: string;
+  type: 'income' | 'expense';
+  income_category_id: string;
+  expense_category_id: string;
+  payment_mode: string;
+  amount: { $numberDecimal: string };
 }
 
 export default function TransactionHistory() {
-  const [transactions] = useState<Transaction[]>([
-    {
-      id: '1',
-      type: 'income',
-      category: 'Salary',
-      amount: 5000,
-      date: '2024-01-15',
-      description: 'Monthly salary',
-      paymentMethod: 'Bank Transfer'
-    },
-    {
-      id: '2',
-      type: 'expense',
-      category: 'Groceries',
-      amount: 150,
-      date: '2024-01-18',
-      description: 'Weekly groceries',
-      paymentMethod: 'Credit Card'
-    },
-    {
-      id: '3',
-      type: 'expense',
-      category: 'Utilities',
-      amount: 80,
-      date: '2024-01-20',
-      description: 'Electricity bill',
-      paymentMethod: 'Direct Debit'
-    },
-    {
-      id: '4',
-      type: 'income',
-      category: 'Freelance',
-      amount: 800,
-      date: '2024-01-22',
-      description: 'Website development project',
-      paymentMethod: 'PayPal'
-    }
-  ]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const response = await fetch('/api/transactions');
+        if (!response.ok) throw new Error('Failed to fetch transactions');
+        const data = await response.json();
+        console.log(data);
+        setTransactions(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch transactions');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTransactions();
+  }, []);
 
   const [filters, setFilters] = useState({
     dateRange: 'all',
@@ -64,8 +48,9 @@ export default function TransactionHistory() {
             <h3 className="text-xl font-semibold text-white">Transaction History</h3>
             <p className="text-sm text-gray-400 mt-1">View and filter your transactions</p>
           </div>
+
           <div className="flex flex-wrap gap-3">
-            <select 
+            <select
               className="bg-white/[0.05] border border-white/[0.05] rounded-xl px-4 py-2 text-sm text-white/70"
               value={filters.dateRange}
               onChange={(e) => setFilters(prev => ({ ...prev, dateRange: e.target.value }))}
@@ -75,7 +60,7 @@ export default function TransactionHistory() {
               <option value="week">This Week</option>
               <option value="month">This Month</option>
             </select>
-            <select 
+            <select
               className="bg-white/[0.05] border border-white/[0.05] rounded-xl px-4 py-2 text-sm text-white/70"
               value={filters.type}
               onChange={(e) => setFilters(prev => ({ ...prev, type: e.target.value }))}
@@ -84,7 +69,7 @@ export default function TransactionHistory() {
               <option value="income">Income</option>
               <option value="expense">Expense</option>
             </select>
-            <select 
+            <select
               className="bg-white/[0.05] border border-white/[0.05] rounded-xl px-4 py-2 text-sm text-white/70"
               value={filters.category}
               onChange={(e) => setFilters(prev => ({ ...prev, category: e.target.value }))}
@@ -99,53 +84,60 @@ export default function TransactionHistory() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-white/[0.05]">
-                <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">Date</th>
-                <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">Description</th>
-                <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">Category</th>
-                <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">Payment Method</th>
-                <th className="text-right py-4 px-4 text-sm font-medium text-gray-400">Amount</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/[0.05]">
-              {transactions.map((transaction) => (
-                <tr 
-                  key={transaction.id}
-                  className="group hover:bg-white/[0.02] transition-colors"
-                >
-                  <td className="py-4 px-4">
-                    <div className="text-sm text-white">
-                      {new Date(transaction.date).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric'
-                      })}
-                    </div>
-                  </td>
-                  <td className="py-4 px-4">
-                    <div className="text-sm text-white">{transaction.description}</div>
-                  </td>
-                  <td className="py-4 px-4">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                      ${transaction.type === 'income' ? 'bg-green-500/10 text-green-400' : 'bg-blue-500/10 text-blue-400'}`}>
-                      {transaction.category}
-                    </span>
-                  </td>
-                  <td className="py-4 px-4">
-                    <div className="text-sm text-gray-400">{transaction.paymentMethod}</div>
-                  </td>
-                  <td className="py-4 px-4 text-right">
-                    <span className={`text-sm font-medium
-                      ${transaction.type === 'income' ? 'text-green-400' : 'text-rose-400'}`}>
-                      {transaction.type === 'income' ? '+' : '-'}${transaction.amount.toLocaleString()}
-                    </span>
-                  </td>
+          {loading ? (
+            <p className="text-center text-gray-400 py-4">Loading transactions...</p>
+          ) : error ? (
+            <p className="text-center text-red-400 py-4">{error}</p>
+          ) : (
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-white/[0.05]">
+                  <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">Date</th>
+                  <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">Description</th>
+                  <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">Category</th>
+                  <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">Payment Method</th>
+                  <th className="text-right py-4 px-4 text-sm font-medium text-gray-400">Amount</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-white/[0.05]">
+                {transactions.map((transaction) => (
+                  <tr
+                    key={transaction._id}
+                    className="group hover:bg-white/[0.02] transition-colors"
+                  >
+                    <td className="py-4 px-4">
+                      <div className="text-sm text-white">
+                        {new Date(transaction.date).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric'
+                        })}
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="text-sm text-white">{transaction.description}</div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                        ${transaction.type === 'income' ? 'bg-green-500/10 text-green-400' : 'bg-blue-500/10 text-blue-400'}`}>
+                        {transaction.income_category_id || transaction.expense_category_id || 'N/A'}
+                      </span>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="text-sm text-gray-400">{transaction.payment_mode}</div>
+                    </td>
+                    <td className="py-4 px-4 text-right">
+                      <span className={`text-sm font-medium
+                        ${transaction.type === 'income' ? 'text-green-400' : 'text-rose-400'}`}>
+                        {transaction.type === 'income' ? '+' : '-'}$
+                        {parseFloat(transaction.amount.$numberDecimal).toLocaleString()}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </div>
