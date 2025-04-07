@@ -1,5 +1,6 @@
 // Add useEffect and update imports
 import { useState, useEffect } from "react";
+import { generateExcelReport } from '../utils/downloadReport';
 
 
 // Update the DashboardData interface
@@ -105,6 +106,18 @@ export default function DashboardOverview() {
         };
     };
 
+    const handleDownload = async () => {
+        try {
+            const response = await fetch(`/api/download?period=${selectedPeriod}`);
+            if (!response.ok) throw new Error('Failed to fetch data');
+            const data = await response.json();
+            generateExcelReport(data.transactions, selectedPeriod);
+        } catch (error) {
+            console.error('Download failed:', error);
+            // You can add error handling UI here
+        }
+    };
+
     return (
         <div className="space-y-8">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
@@ -119,7 +132,10 @@ export default function DashboardOverview() {
                         <option value="3M">Last 90 Days</option>
                         <option value="1Y">This Year</option>
                     </select>
-                    <button className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                    <button
+                        onClick={handleDownload}
+                        className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                    >
                         Download Report
                     </button>
                 </div>
