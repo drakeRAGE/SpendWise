@@ -1,11 +1,35 @@
-import { useState } from "react";
-// Remove this line from imports
-import IncomeTracking from "./IncomeTracking";
+// Add useEffect and update imports
+import { useState, useEffect } from "react";
 
 import { useFinance } from "~/context/FinanceContext";
 
 export default function DashboardOverview() {
     const [selectedPeriod, setSelectedPeriod] = useState('1M');
+    const [dashboardData, setDashboardData] = useState({
+        totalIncome: 0,
+        totalExpenses: 0,
+        balance: 0
+    });
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            try {
+                const response = await fetch('/api/dashboard');
+                if (!response.ok) throw new Error('Failed to fetch dashboard data');
+                const data = await response.json();
+                setDashboardData(data);
+            } catch (err) {
+                setError(err instanceof Error ? err.message : 'Failed to fetch dashboard data');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchDashboardData();
+    }, []);
+
     const {
         getTotalIncome,
         getTotalExpenses,
@@ -33,10 +57,11 @@ export default function DashboardOverview() {
         }));
     };
 
+    // Update the financialData object
     const financialData = {
-        totalIncome: getTotalIncome(),
-        totalExpenses: getTotalExpenses(),
-        remainingBalance: getRemainingBalance(),
+        totalIncome: dashboardData.totalIncome.toLocaleString(undefined, { minimumFractionDigits: 2 }),
+        totalExpenses: dashboardData.totalExpenses.toLocaleString(undefined, { minimumFractionDigits: 2 }),
+        remainingBalance: dashboardData.balance.toLocaleString(undefined, { minimumFractionDigits: 2 }),
         monthlySpending: getSpendingData(selectedPeriod),
         upcomingBills
     };
