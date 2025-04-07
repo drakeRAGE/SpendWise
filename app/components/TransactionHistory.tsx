@@ -245,7 +245,7 @@ export default function TransactionHistory() {
                       <div className="flex items-center justify-end gap-2">
                         <span className={`text-sm font-medium
                           ${transaction.type === 'income' ? 'text-green-400' : 'text-rose-400'}`}>
-                          {transaction.type === 'income' ? '+' : '-'}$
+                          {transaction.type === 'income' ? '+' : '-'}₹
                           {parseFloat(transaction.amount.$numberDecimal).toLocaleString()}
                         </span>
                         <button
