@@ -57,12 +57,14 @@ export default function DashboardOverview() {
         }));
     };
 
+    // Remove or comment out the getSpendingData function as we'll use real data now
+
     // Update the financialData object
     const financialData = {
         totalIncome: dashboardData.totalIncome.toLocaleString(undefined, { minimumFractionDigits: 2 }),
         totalExpenses: dashboardData.totalExpenses.toLocaleString(undefined, { minimumFractionDigits: 2 }),
         remainingBalance: dashboardData.balance.toLocaleString(undefined, { minimumFractionDigits: 2 }),
-        monthlySpending: getSpendingData(selectedPeriod),
+        monthlySpending: dashboardData.monthlySpending || [], // Use the real monthly spending data
         upcomingBills
     };
 
@@ -95,7 +97,7 @@ export default function DashboardOverview() {
                                 </svg>
                             </span>
                         </div>
-                        <p className="mt-4 text-3xl font-bold text-white">${financialData.totalIncome}</p>
+                        <p className="mt-4 text-3xl font-bold text-white">₹{financialData.totalIncome}</p>
                         <div className="mt-3 flex items-center text-sm text-cyan-300">
                             <svg className="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" />
@@ -116,7 +118,7 @@ export default function DashboardOverview() {
                                 </svg>
                             </span>
                         </div>
-                        <p className="mt-4 text-3xl font-bold text-white">${financialData.totalExpenses}</p>
+                        <p className="mt-4 text-3xl font-bold text-white">₹{financialData.totalExpenses}</p>
                         <div className="mt-3 flex items-center text-sm text-rose-300">
                             <svg className="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M12 13a1 1 0 110 2H7a1 1 0 01-1-1V9a1 1 0 112 0v3.586l4.293-4.293a1 1 0 011.414 0L16 10.586l4.293-4.293a1 1 0 111.414 1.414l-5 5a1 1 0 01-1.414 0L13 10.414 9.414 14H12z" />
@@ -137,7 +139,7 @@ export default function DashboardOverview() {
                                 </svg>
                             </span>
                         </div>
-                        <p className="mt-4 text-3xl font-bold text-white">${financialData.remainingBalance}</p>
+                        <p className="mt-4 text-3xl font-bold text-white">₹{financialData.remainingBalance}</p>
                         <div className="mt-3 flex items-center text-sm text-emerald-300">
                             <svg className="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" />
@@ -219,7 +221,7 @@ export default function DashboardOverview() {
                                         </div>
                                     </div>
                                     <span className="font-medium text-white bg-white/10 px-3 py-1 rounded-full">
-                                        ${bill.amount}
+                                        ₹{bill.amount}
                                     </span>
                                 </div>
                             </div>
