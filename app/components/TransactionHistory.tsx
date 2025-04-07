@@ -25,6 +25,22 @@ export default function TransactionHistory() {
     payment_mode: '',
     amount: ''
   });
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  const handleDelete = async (id: string) => {
+    try {
+      const response = await fetch(`/api/transactions?id=${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) throw new Error('Failed to delete transaction');
+
+      setTransactions(prev => prev.filter(t => t._id !== id));
+      setDeleteId(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete transaction');
+    }
+  };
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -226,11 +242,21 @@ export default function TransactionHistory() {
                       <div className="text-sm text-gray-400">{transaction.payment_mode}</div>
                     </td>
                     <td className="py-4 px-4 text-right">
-                      <span className={`text-sm font-medium
-                        ${transaction.type === 'income' ? 'text-green-400' : 'text-rose-400'}`}>
-                        {transaction.type === 'income' ? '+' : '-'}$
-                        {parseFloat(transaction.amount.$numberDecimal).toLocaleString()}
-                      </span>
+                      <div className="flex items-center justify-end gap-2">
+                        <span className={`text-sm font-medium
+                          ${transaction.type === 'income' ? 'text-green-400' : 'text-rose-400'}`}>
+                          {transaction.type === 'income' ? '+' : '-'}$
+                          {parseFloat(transaction.amount.$numberDecimal).toLocaleString()}
+                        </span>
+                        <button
+                          onClick={() => setDeleteId(transaction._id)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-red-400"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -351,6 +377,33 @@ export default function TransactionHistory() {
           </div>
         </div>
       )}
+
+
+      {/* Delete Confirmation Modal */}
+      {
+        deleteId && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+            <div className="bg-gray-800 rounded-2xl p-6 w-full max-w-sm">
+              <h3 className="text-xl font-semibold text-white mb-4">Delete Transaction</h3>
+              <p className="text-gray-400 mb-6">Are you sure you want to delete this transaction? This action cannot be undone.</p>
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setDeleteId(null)}
+                  className="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => handleDelete(deleteId)}
+                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl text-sm transition-colors"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+      }
     </div>
   );
 }
