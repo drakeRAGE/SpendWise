@@ -40,6 +40,55 @@ export default function TransactionHistory() {
     category: 'all'
   });
 
+  const getFilteredTransactions = () => {
+    let filtered = [...transactions];
+
+    // Filter by type
+    if (filters.type !== 'all') {
+      filtered = filtered.filter(t => t.type === filters.type);
+    }
+
+    // Filter by category
+    if (filters.category !== 'all') {
+      filtered = filtered.filter(t =>
+        t.income_category_id === filters.category ||
+        t.expense_category_id === filters.category
+      );
+    }
+
+    // Filter by date range
+    const today = new Date();
+    const transactionDate = new Date();
+
+    switch (filters.dateRange) {
+      case 'today':
+        filtered = filtered.filter(t => {
+          transactionDate.setTime(Date.parse(t.date));
+          return transactionDate.toDateString() === today.toDateString();
+        });
+        break;
+      case 'week':
+        const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+        filtered = filtered.filter(t => {
+          transactionDate.setTime(Date.parse(t.date));
+          return transactionDate >= weekAgo;
+        });
+        break;
+      case 'month':
+        filtered = filtered.filter(t => {
+          transactionDate.setTime(Date.parse(t.date));
+          return (
+            transactionDate.getMonth() === today.getMonth() &&
+            transactionDate.getFullYear() === today.getFullYear()
+          );
+        });
+        break;
+    }
+
+    // Sort by date (most recent first)
+    return filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  };
+
   return (
     <div className="space-y-6">
       <div className="bg-white/[0.02] rounded-2xl border border-white/[0.05] shadow-xl backdrop-blur-xl p-6">
@@ -55,30 +104,31 @@ export default function TransactionHistory() {
               value={filters.dateRange}
               onChange={(e) => setFilters(prev => ({ ...prev, dateRange: e.target.value }))}
             >
-              <option value="all">All Time</option>
-              <option value="today">Today</option>
-              <option value="week">This Week</option>
-              <option value="month">This Month</option>
+              <option className="text-gray-400" value="all">All Time</option>
+              <option className="text-gray-400" value="today">Today</option>
+              <option className="text-gray-400" value="week">This Week</option>
+              <option className="text-gray-400" value="month">This Month</option>
             </select>
             <select
               className="bg-white/[0.05] border border-white/[0.05] rounded-xl px-4 py-2 text-sm text-white/70"
               value={filters.type}
               onChange={(e) => setFilters(prev => ({ ...prev, type: e.target.value }))}
             >
-              <option value="all">All Types</option>
-              <option value="income">Income</option>
-              <option value="expense">Expense</option>
+              <option className="text-gray-400" value="all">All Types</option>
+              <option className="text-gray-400" value="income">Income</option>
+              <option className="text-gray-400" value="expense">Expense</option>
             </select>
             <select
               className="bg-white/[0.05] border border-white/[0.05] rounded-xl px-4 py-2 text-sm text-white/70"
               value={filters.category}
               onChange={(e) => setFilters(prev => ({ ...prev, category: e.target.value }))}
             >
-              <option value="all">All Categories</option>
-              <option value="salary">Salary</option>
-              <option value="freelance">Freelance</option>
-              <option value="groceries">Groceries</option>
-              <option value="utilities">Utilities</option>
+              <option className="text-gray-400" value="all">All Categories</option>
+              <option className="text-gray-400" value="salary">Salary</option>
+              <option className="text-gray-400" value="freelance">Freelance</option>
+              <option className="text-gray-400" value="groceries">Groceries</option>
+              <option className="text-gray-400" value="utilities">Utilities</option>
+              <option className="text-gray-400" value="internet">Internet</option>
             </select>
           </div>
         </div>
@@ -100,7 +150,7 @@ export default function TransactionHistory() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/[0.05]">
-                {transactions.map((transaction) => (
+                {getFilteredTransactions().map((transaction) => (
                   <tr
                     key={transaction._id}
                     className="group hover:bg-white/[0.02] transition-colors"
