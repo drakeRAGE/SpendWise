@@ -1,7 +1,7 @@
 // Add useEffect and update imports
 import { useState, useEffect } from "react";
 import { generateExcelReport } from '../utils/downloadReport';
-
+import Loader from './Loader';
 
 // Update the DashboardData interface
 interface DashboardData {
@@ -83,7 +83,7 @@ export default function DashboardOverview() {
         fetchDashboardData();
     }, []);
 
-    if (loading) return <div className="text-center text-gray-400 py-4">Loading dashboard data...</div>;
+    if (loading) return <Loader />;
     if (error) return <div className="text-center text-red-400 py-4">{error}</div>;
 
     const formatCurrency = (amount: number) => {
@@ -128,9 +128,9 @@ export default function DashboardOverview() {
                         onChange={(e) => setSelectedPeriod(e.target.value)}
                         className="bg-white/[0.05] border border-white/[0.05] rounded-lg px-4 py-2 text-sm text-white/70"
                     >
-                        <option value="1M">Last 30 Days</option>
-                        <option value="3M">Last 90 Days</option>
-                        <option value="1Y">This Year</option>
+                        <option className="text-gray-400" value="1M">Last 30 Days</option>
+                        <option className="text-gray-400" value="3M">Last 90 Days</option>
+                        <option className="text-gray-400" value="1Y">This Year</option>
                     </select>
                     <button
                         onClick={handleDownload}
