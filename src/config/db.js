@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 export const connectDB = async () => {
   try {
-    const conn = await mongoose.connect('mongodb+srv://dragbos:dragbos@spendwise.mrg9bbz.mongodb.net/?retryWrites=true&w=majority&appName=Spendwise', {
+    const conn = await mongoose.connect(process.env.MONGODB_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
@@ -13,5 +13,3 @@ export const connectDB = async () => {
     process.exit(1);
   }
 };
-
-connectDB();
