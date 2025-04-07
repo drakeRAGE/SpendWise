@@ -101,14 +101,13 @@ export default function BudgetManagement() {
                 </div>
                 <div className="text-right">
                   <p className="text-2xl font-semibold text-white">
-                    ${budgetAmount.toLocaleString()}
+                    ₹{budgetAmount.toLocaleString()}
                   </p>
-                  <p className={`text-sm ${
-                    status === 'exceeded' ? 'text-rose-400' :
+                  <p className={`text-sm ${status === 'exceeded' ? 'text-rose-400' :
                     status === 'warning' ? 'text-amber-400' :
-                    'text-green-400'
-                  }`}>
-                    ${spentAmount.toLocaleString()} spent
+                      'text-green-400'
+                    }`}>
+                    ₹{spentAmount.toLocaleString()} spent
                   </p>
                 </div>
               </div>
@@ -122,18 +121,17 @@ export default function BudgetManagement() {
                   </div>
                   <div className="text-right">
                     <span className="text-xs font-semibold inline-block text-gray-400">
-                      ${(budgetAmount - spentAmount).toLocaleString()} remaining
+                      ₹{(budgetAmount - spentAmount).toLocaleString()} remaining
                     </span>
                   </div>
                 </div>
                 <div className="overflow-hidden h-2 text-xs flex rounded-full bg-white/[0.05]">
                   <div
                     style={{ width: `${Math.min(percentage, 100)}%` }}
-                    className={`shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center ${
-                      status === 'exceeded' ? 'bg-rose-500' :
+                    className={`shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center ${status === 'exceeded' ? 'bg-rose-500' :
                       status === 'warning' ? 'bg-amber-500' :
-                      'bg-green-500'
-                    }`}
+                        'bg-green-500'
+                      }`}
                   ></div>
                 </div>
               </div>
