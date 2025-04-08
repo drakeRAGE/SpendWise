@@ -149,23 +149,23 @@ export default function TransactionHistory() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="bg-white/[0.02] rounded-2xl border border-white/[0.05] shadow-xl backdrop-blur-xl p-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="bg-white/[0.02] rounded-2xl border border-white/[0.05] shadow-xl backdrop-blur-xl p-4 sm:p-6">
+        <div className="flex flex-col gap-4 mb-6">
           <div>
-            <h3 className="text-xl font-semibold text-white">Transaction History</h3>
-            <p className="text-sm text-gray-400 mt-1">View and filter your transactions</p>
+            <h3 className="text-lg sm:text-xl font-semibold text-white">Transaction History</h3>
+            <p className="text-xs sm:text-sm text-gray-400 mt-1">View and filter your transactions</p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-wrap items-center gap-3">
             <button
               onClick={() => setIsModalOpen(!isModalOpen)}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-xl text-sm transition-colors"
+              className="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-xl text-sm transition-colors"
             >
               New Transaction
             </button>
             <select
-              className="bg-white/[0.05] border border-white/[0.05] rounded-xl px-4 py-2 text-sm text-white/70"
+              className="w-full sm:w-auto bg-white/[0.05] border border-white/[0.05] rounded-xl px-4 py-2 text-sm text-white/70"
               value={filters.dateRange}
               onChange={(e) => setFilters(prev => ({ ...prev, dateRange: e.target.value }))}
             >
@@ -175,7 +175,7 @@ export default function TransactionHistory() {
               <option className="text-gray-400" value="month">This Month</option>
             </select>
             <select
-              className="bg-white/[0.05] border border-white/[0.05] rounded-xl px-4 py-2 text-sm text-white/70"
+              className="w-full sm:w-auto bg-white/[0.05] border border-white/[0.05] rounded-xl px-4 py-2 text-sm text-white/70"
               value={filters.type}
               onChange={(e) => setFilters(prev => ({ ...prev, type: e.target.value }))}
             >
@@ -184,7 +184,7 @@ export default function TransactionHistory() {
               <option className="text-gray-400" value="expense">Expense</option>
             </select>
             <select
-              className="bg-white/[0.05] border border-white/[0.05] rounded-xl px-4 py-2 text-sm text-white/70"
+              className="w-full sm:w-auto bg-white/[0.05] border border-white/[0.05] rounded-xl px-4 py-2 text-sm text-white/70"
               value={filters.category}
               onChange={(e) => setFilters(prev => ({ ...prev, category: e.target.value }))}
             >
@@ -198,71 +198,89 @@ export default function TransactionHistory() {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          {loading ? (
-            <p className="text-center text-gray-400 py-4">Loading transactions...</p>
-          ) : error ? (
-            <p className="text-center text-red-400 py-4">{error}</p>
-          ) : (
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-white/[0.05]">
-                  <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">Date</th>
-                  <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">Description</th>
-                  <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">Category</th>
-                  <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">Payment Method</th>
-                  <th className="text-right py-4 px-4 text-sm font-medium text-gray-400">Amount</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/[0.05]">
-                {getFilteredTransactions().map((transaction) => (
-                  <tr
-                    key={transaction._id}
-                    className="group hover:bg-white/[0.02] transition-colors"
-                  >
-                    <td className="py-4 px-4">
-                      <div className="text-sm text-white">
-                        {new Date(transaction.date).toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: 'numeric',
-                          year: 'numeric'
-                        })}
-                      </div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <div className="text-sm text-white">{transaction.description}</div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                        ${transaction.type === 'income' ? 'bg-green-500/10 text-green-400' : 'bg-blue-500/10 text-blue-400'}`}>
-                        {transaction.income_category_id || transaction.expense_category_id || 'N/A'}
-                      </span>
-                    </td>
-                    <td className="py-4 px-4">
-                      <div className="text-sm text-gray-400">{transaction.payment_mode}</div>
-                    </td>
-                    <td className="py-4 px-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <span className={`text-sm font-medium
-                          ${transaction.type === 'income' ? 'text-green-400' : 'text-rose-400'}`}>
-                          {transaction.type === 'income' ? '+' : '-'}₹
-                          {parseFloat(transaction.amount.$numberDecimal).toLocaleString()}
-                        </span>
-                        <button
-                          onClick={() => setDeleteId(transaction._id)}
-                          className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-red-400"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                          </svg>
-                        </button>
-                      </div>
-                    </td>
+        {/* Responsive Table */}
+        <div className="overflow-x-auto -mx-4 sm:mx-0">
+          <div className="inline-block min-w-full align-middle">
+            {loading ? (
+              <p className="text-center text-gray-400 py-4">Loading transactions...</p>
+            ) : error ? (
+              <p className="text-center text-red-400 py-4">{error}</p>
+            ) : (
+              <table className="min-w-full">
+                <thead className="hidden sm:table-header-group">
+                  <tr className="border-b border-white/[0.05]">
+                    <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">Date</th>
+                    <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">Description</th>
+                    <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">Category</th>
+                    <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">Payment Method</th>
+                    <th className="text-right py-4 px-4 text-sm font-medium text-gray-400">Amount</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+                </thead>
+                <tbody className="divide-y divide-white/[0.05]">
+                  {getFilteredTransactions().map((transaction) => (
+                    <tr
+                      key={transaction._id}
+                      className="group hover:bg-white/[0.02] transition-colors block sm:table-row"
+                    >
+                      <td className="py-3 sm:py-4 px-4 block sm:table-cell">
+                        <div className="flex justify-between items-center sm:block">
+                          <span className="text-gray-400 sm:hidden">Date:</span>
+                          <div className="text-sm text-white">
+                            {new Date(transaction.date).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric'
+                            })}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-3 sm:py-4 px-4 block sm:table-cell">
+                        <div className="flex justify-between items-center sm:block">
+                          <span className="text-gray-400 sm:hidden">Description:</span>
+                          <div className="text-sm text-white">{transaction.description}</div>
+                        </div>
+                      </td>
+                      <td className="py-3 sm:py-4 px-4 block sm:table-cell">
+                        <div className="flex justify-between items-center sm:block">
+                          <span className="text-gray-400 sm:hidden">Category:</span>
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                            ${transaction.type === 'income' ? 'bg-green-500/10 text-green-400' : 'bg-blue-500/10 text-blue-400'}`}>
+                            {transaction.income_category_id || transaction.expense_category_id || 'N/A'}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="py-3 sm:py-4 px-4 block sm:table-cell">
+                        <div className="flex justify-between items-center sm:block">
+                          <span className="text-gray-400 sm:hidden">Payment Method:</span>
+                          <div className="text-sm text-gray-400">{transaction.payment_mode}</div>
+                        </div>
+                      </td>
+                      <td className="py-3 sm:py-4 px-4 block sm:table-cell">
+                        <div className="flex justify-between items-center sm:justify-end">
+                          <span className="text-gray-400 sm:hidden">Amount:</span>
+                          <div className="flex items-center gap-2">
+                            <span className={`text-sm font-medium
+                              ${transaction.type === 'income' ? 'text-green-400' : 'text-rose-400'}`}>
+                              {transaction.type === 'income' ? '+' : '-'}₹
+                              {parseFloat(transaction.amount.$numberDecimal).toLocaleString()}
+                            </span>
+                            <button
+                              onClick={() => setDeleteId(transaction._id)}
+                              className="opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-red-400"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
         </div>
       </div>
 
